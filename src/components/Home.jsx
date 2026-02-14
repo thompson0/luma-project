@@ -1,133 +1,259 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import {
 	LayoutDashboard,
 	Package,
-	Users,
-	ClipboardList,
-	BarChart3,
-	Bell,
-	Calendar,
-} from "lucide-react";
+	TrendingUp,
+	Clock,
+	User,
+	LogOut,
+	Zap,
+	AlertCircle,
+	CheckCircle2,
+	ArrowRight,
+} from 'lucide-react';
 
-const summaryCards = [
+const navigationItems = [
 	{
-		label: "Pecas cadastradas",
-		value: "248",
-		detail: "+12 esta semana",
-	},
-	{
-		label: "Pedidos em andamento",
-		value: "19",
-		detail: "6 aguardando envio",
-	},
-	{
-		label: "Atendimentos abertos",
-		value: "4",
-		detail: "Tempo medio 1h",
-	},
-];
-
-const quickActions = [
-	{
-		title: "Estoque e pecas",
-		description: "Gerencie cadastros, lotes e reposicoes.",
-		href: "/catalogo",
+		title: 'Estoque e peças',
+		description: 'Gerencie cadastros, lotes e reposições de produtos.',
+		href: '/catalogo',
 		icon: Package,
+		color: 'from-blue-500 to-cyan-500',
 	},
 	{
-		title: "Pedidos internos",
-		description: "Acompanhe status e separacao.",
-		href: "#",
-		icon: ClipboardList,
+		title: 'Análise de vendas',
+		description: 'Visão geral de desempenho e métricas da loja.',
+		href: '#',
+		icon: TrendingUp,
+		color: 'from-emerald-500 to-teal-500',
 	},
 	{
-		title: "Clientes e contatos",
-		description: "Historico, preferencias e SAC.",
-		href: "#",
-		icon: Users,
+		title: 'Pedidos em aberto',
+		description: 'Acompanhe pedidos e status de entrega.',
+		href: '#',
+		icon: Clock,
+		color: 'from-amber-500 to-orange-500',
 	},
 	{
-		title: "Relatorios",
-		description: "Visao de vendas e desempenho.",
-		href: "#",
-		icon: BarChart3,
+		title: 'Clientes',
+		description: 'Gerenciar contatos, histórico e preferências.',
+		href: '#',
+		icon: User,
+		color: 'from-pink-500 to-rose-500',
 	},
 ];
+
+function StatsCard({ icon: Icon, label, loading = false }) {
+	return (
+		<div className="overflow-hidden rounded-lg border border-border bg-card">
+			<div className="p-6">
+				<div className="flex items-start justify-between">
+					<div className="space-y-2 flex-1">
+						<p className="text-sm font-medium text-muted-foreground">{label}</p>
+						{loading ? (
+							<div className="h-8 w-24 animate-pulse rounded bg-muted" />
+						) : (
+							<p className="text-3xl font-bold">—</p>
+						)}
+					</div>
+					<div className="rounded-lg bg-muted p-2.5">
+						<Icon className="h-5 w-5 text-muted-foreground" />
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function AlertItem({ title, description, variant = 'default' }) {
+	const isWarning = variant === 'warning';
+	const isSuccess = variant === 'success';
+
+	return (
+		<div
+			className={`rounded-lg border p-4 ${
+				isWarning
+					? 'border-yellow-200 bg-yellow-50 dark:border-yellow-900/30 dark:bg-yellow-900/10'
+					: isSuccess
+						? 'border-emerald-200 bg-emerald-50 dark:border-emerald-900/30 dark:bg-emerald-900/10'
+						: 'border-blue-200 bg-blue-50 dark:border-blue-900/30 dark:bg-blue-900/10'
+			}`}
+		>
+			<div className="flex gap-3">
+				<div className="flex-shrink-0 mt-0.5">
+					{isSuccess ? (
+						<CheckCircle2
+							className={`h-5 w-5 ${
+								isSuccess
+									? 'text-emerald-600 dark:text-emerald-400'
+									: 'text-blue-600 dark:text-blue-400'
+							}`}
+						/>
+					) : (
+						<AlertCircle
+							className={`h-5 w-5 ${
+								isWarning
+									? 'text-yellow-600 dark:text-yellow-400'
+									: 'text-blue-600 dark:text-blue-400'
+							}`}
+						/>
+					)}
+				</div>
+				<div className="flex-1">
+					<p
+						className={`text-sm font-semibold ${
+							isWarning
+								? 'text-yellow-900 dark:text-yellow-200'
+								: isSuccess
+									? 'text-emerald-900 dark:text-emerald-200'
+									: 'text-blue-900 dark:text-blue-200'
+						}`}
+					>
+						{title}
+					</p>
+					<p
+						className={`mt-1 text-xs ${
+							isWarning
+								? 'text-yellow-700 dark:text-yellow-300'
+								: isSuccess
+									? 'text-emerald-700 dark:text-emerald-300'
+									: 'text-blue-700 dark:text-blue-300'
+						}`}
+					>
+						{description}
+					</p>
+				</div>
+			</div>
+		</div>
+	);
+}
 
 export default function Home() {
+	const [user, setUser] = useState(null);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		fetchUser();
+	}, []);
+
+	async function fetchUser() {
+		try {
+			const response = await fetch('/api/v1/auth/session', {
+				credentials: 'include',
+			});
+			if (response.ok) {
+				const data = await response.json();
+				setUser(data.user);
+			}
+		} catch (error) {
+			console.error('Failed to fetch user:', error);
+		} finally {
+			setLoading(false);
+		}
+	}
+
+	const greeting = () => {
+		const hour = new Date().getHours();
+		if (hour < 12) return 'Bom dia';
+		if (hour < 18) return 'Boa tarde';
+		return 'Boa noite';
+	};
+
 	return (
-		<main className="bg-background text-foreground">
-			<section className="border-b border-border bg-muted/20">
-				<div className="mx-auto max-w-6xl px-6 pb-12 pt-24 sm:pt-28">
-					<div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-						<div className="space-y-4">
-							<div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-								Painel interno
-							</div>
-							<h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
-								Luma Bijoux Workspace
+		<main className="min-h-screen bg-background">
+			{/* Header com Greeting */}
+			<section className="border-b border-border bg-card">
+				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+						<div className="space-y-2">
+							<p className="text-sm font-medium text-muted-foreground">
+								{greeting()}, {user?.name || user?.email?.split('@')[0] || 'Usuário'}
+							</p>
+							<h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+								Luma Bijoux
 							</h1>
-							<p className="max-w-2xl text-base text-muted-foreground sm:text-lg">
-								Acompanhe estoque, pedidos e atendimento em um so lugar. Este painel foi pensado
-								para manter a operacao organizada e com informacoes claras.
+							<p className="text-sm text-muted-foreground max-w-lg">
+								Seu painel de controle para estoque, vendas e operações.
 							</p>
 						</div>
-						<div className="rounded-2xl border border-border bg-background p-5 shadow-sm">
-							<div className="flex items-center gap-3">
-								<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted">
-									<LayoutDashboard className="h-6 w-6 text-foreground" />
-								</div>
-								<div>
-									<p className="text-sm text-muted-foreground">Status do dia</p>
-									<p className="text-lg font-semibold">Tudo em ordem</p>
-								</div>
-							</div>
-							<div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-								<Calendar className="h-4 w-4" />
-								Atualizado ha poucos minutos
-							</div>
+						<div className="flex shrink-0 gap-2">
+							<Button variant="ghost" size="icon" title="Notificações">
+								<Zap className="h-5 w-5" />
+							</Button>
+							<Button variant="ghost" size="icon" title="Menu">
+								<LayoutDashboard className="h-5 w-5" />
+							</Button>
 						</div>
-					</div>
-					<div className="mt-10 grid gap-4 md:grid-cols-3">
-						{summaryCards.map((card) => (
-							<div
-								key={card.label}
-								className="rounded-2xl border border-border bg-background p-5 shadow-sm"
-							>
-								<p className="text-sm text-muted-foreground">{card.label}</p>
-								<p className="mt-3 text-3xl font-semibold text-foreground">{card.value}</p>
-								<p className="mt-2 text-xs text-muted-foreground">{card.detail}</p>
-							</div>
-						))}
 					</div>
 				</div>
 			</section>
 
-			<section className="bg-background">
-				<div className="mx-auto max-w-6xl px-6 py-16">
-					<div className="flex flex-col gap-3">
-						<h2 className="text-3xl font-semibold">Atalhos da operacao</h2>
-						<p className="max-w-2xl text-muted-foreground">
-							Acesso rapido aos fluxos principais do sistema interno.
+			{/* Stats Cards */}
+			<section className="border-b border-border bg-muted/30">
+				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+						<StatsCard
+							icon={Package}
+							label="Total de peças"
+							loading={loading}
+						/>
+						<StatsCard
+							icon={TrendingUp}
+							label="Faturamento mês"
+							loading={loading}
+						/>
+						<StatsCard
+							icon={Clock}
+							label="Pedidos abertos"
+							loading={loading}
+						/>
+						<StatsCard
+							icon={User}
+							label="Clientes ativos"
+							loading={loading}
+						/>
+					</div>
+				</div>
+			</section>
+
+			{/* Quick Actions Grid */}
+			<section className="border-b border-border">
+				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+					<div className="mb-8">
+						<h2 className="text-2xl font-bold tracking-tight">Acesso rápido</h2>
+						<p className="mt-1 text-sm text-muted-foreground">
+							Navegue para as principais funcionalidades do sistema
 						</p>
 					</div>
-					<div className="mt-10 grid gap-6 md:grid-cols-2">
-						{quickActions.map((item) => {
+
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						{navigationItems.map((item) => {
 							const Icon = item.icon;
 							return (
-								<Link
-									key={item.title}
-									href={item.href}
-									className="group rounded-2xl border border-border bg-muted/10 p-6 transition hover:-translate-y-1 hover:shadow-lg"
-								>
-									<div className="flex items-start gap-4">
-										<span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted">
-											<Icon className="h-6 w-6 text-foreground" />
-										</span>
-										<div>
-											<h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
-											<p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
+								<Link key={item.title} href={item.href}>
+									<div className="group relative overflow-hidden rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/50 hover:shadow-md hover:-translate-y-1">
+										{/* Gradient Background */}
+										<div
+											className={`absolute inset-0 opacity-0 bg-gradient-to-br ${item.color} transition-opacity group-hover:opacity-10`}
+										/>
+
+										<div className="relative z-10">
+											<div className="flex items-start justify-between">
+												<div className="flex-1">
+													<div className="flex items-center gap-2">
+														<Icon className="h-5 w-5 text-foreground" />
+														<h3 className="text-lg font-semibold">{item.title}</h3>
+													</div>
+													<p className="mt-2 text-sm text-muted-foreground">
+														{item.description}
+													</p>
+												</div>
+												<ArrowRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
+											</div>
 										</div>
 									</div>
 								</Link>
@@ -137,57 +263,79 @@ export default function Home() {
 				</div>
 			</section>
 
-			<section className="bg-muted/20">
-				<div className="mx-auto max-w-6xl px-6 py-16">
-					<div className="grid gap-6 md:grid-cols-[1.2fr_0.8fr]">
-						<div className="rounded-2xl border border-border bg-background p-6 shadow-sm">
-							<div className="flex items-start justify-between">
-								<div>
-									<h3 className="text-xl font-semibold">Avisos e prioridades</h3>
-									<p className="mt-2 text-sm text-muted-foreground">
-										Acompanhe tarefas urgentes e ajustes pendentes.
-									</p>
-								</div>
-								<Bell className="h-5 w-5 text-muted-foreground" />
-							</div>
-							<div className="mt-6 space-y-4">
-								<div className="rounded-xl border border-border bg-muted/30 p-4">
-									<p className="text-sm font-semibold">Separacao da colecao Primavera</p>
-									<p className="mt-2 text-xs text-muted-foreground">
-										Revisar reposicao de itens mais procurados.
-									</p>
-								</div>
-								<div className="rounded-xl border border-border bg-muted/30 p-4">
-									<p className="text-sm font-semibold">Pedidos aguardando embalagem</p>
-									<p className="mt-2 text-xs text-muted-foreground">
-										Organizar etiquetas e verificar itens personalizados.
-									</p>
-								</div>
+			{/* Alerts & Actions */}
+			<section className="border-b border-border">
+				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+					<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+						<div className="lg:col-span-2">
+							<h2 className="mb-6 text-2xl font-bold tracking-tight">Avisos</h2>
+							<div className="space-y-4">
+								<AlertItem
+									title="Reposição em andamento"
+									description="Últimos itens da coleção primavera serão enviados hoje."
+									variant="warning"
+								/>
+								<AlertItem
+									title="Backup realizado"
+									description="Backup automático concluído com sucesso às 3:15 AM."
+									variant="success"
+								/>
+								<AlertItem
+									title="API conectada"
+									description="Integração com sistema de carrinhos está operacional."
+									variant="success"
+								/>
 							</div>
 						</div>
 
-						<div className="rounded-2xl border border-border bg-background p-6 shadow-sm">
-							<h3 className="text-xl font-semibold">Acoes rapidas</h3>
-							<p className="mt-2 text-sm text-muted-foreground">
-								Atalhos para tarefas administrativas.
-							</p>
-							<div className="mt-6 flex flex-col gap-3">
-								<Button className="justify-start" variant="outline">
-									Atualizar precos
+						<div>
+							<h2 className="mb-6 text-2xl font-bold tracking-tight">Ações</h2>
+							<div className="space-y-3">
+								<Button
+									className="w-full justify-start"
+									variant="outline"
+									size="sm"
+								>
+									<Package className="mr-2 h-4 w-4" />
+									Adicionar peça
 								</Button>
-								<Button className="justify-start" variant="outline">
-									Gerar relatorio semanal
+								<Button
+									className="w-full justify-start"
+									variant="outline"
+									size="sm"
+								>
+									<TrendingUp className="mr-2 h-4 w-4" />
+									Gerar relatório
 								</Button>
-								<Button className="justify-start" variant="outline">
-									Registrar novo atendimento
+								<Button
+									className="w-full justify-start"
+									variant="outline"
+									size="sm"
+								>
+									<Clock className="mr-2 h-4 w-4" />
+									Ver pedidos
 								</Button>
-							</div>
-							<div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
-								<LayoutDashboard className="h-4 w-4" />
-								Painel interno - use conforme seu perfil
+								<Button
+									className="w-full justify-start"
+									variant="outline"
+									size="sm"
+								>
+									<User className="mr-2 h-4 w-4" />
+									Novo cliente
+								</Button>
 							</div>
 						</div>
 					</div>
+				</div>
+			</section>
+
+			{/* Footer Info */}
+			<section className="bg-muted/30">
+				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+					<p className="text-xs text-muted-foreground">
+						Painel interno de administração. Última atualização:{' '}
+						<span className="font-medium">alguns minutos atrás</span>
+					</p>
 				</div>
 			</section>
 		</main>

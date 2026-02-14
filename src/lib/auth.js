@@ -30,7 +30,45 @@ const trustProxyHeaders = process.env.BETTER_AUTH_TRUST_PROXY_HEADERS === "true"
 const isProduction = process.env.NODE_ENV === "production"
 const useSecureCookies = isProduction || baseURL.startsWith("https://")
 
-const client = new MongoClient(mongoURL)
+// Singleton pattern para MongoClient com pool connection
+let cachedClient = null
+
+async function getMongoClient() {
+  if (cachedClient && cachedClient.topology?.isConnected()) {
+    return cachedClient
+  }
+
+  if (cachedClient) {
+    try {
+      await cachedClient.close()
+    } catch (err) {
+      console.error("Error closing mongo client:", err)
+    }
+  }
+
+  const client = new MongoClient(mongoURL, {
+    maxPoolSize: 10,
+    minPoolSize: 2,
+    retryWrites: true,
+    w: "majority",
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+    connectTimeoutMS: 10000,
+  })
+
+  try {
+    await client.connect()
+    console.log("MongoDB connected successfully")
+    cachedClient = client
+    return client
+  } catch (error) {
+    console.error("MongoDB connection error:", error)
+    throw new Error(`Failed to connect to MongoDB: ${error.message}`)
+  }
+}
+
+// Inicializar cliente
+const client = await getMongoClient()
 
 export const auth = betterAuth({
   database: mongodbAdapter(client.db()),
