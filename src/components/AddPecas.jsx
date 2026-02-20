@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "../ui/button"
+import { Button } from "../components/ui/button"
 import {
   Dialog,
   DialogTrigger,
@@ -10,13 +10,11 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
-} from "../ui/dialog"
-import { Input } from "../ui/input"
+} from "../components/ui/dialog"
+import { Input } from "../components/ui/input"
 import { PlusSquare } from "lucide-react"
 import { useSecureFetch } from "@/hooks/useSecureFetch"
 import { useRefresh } from "@/context/RefreshContext"
-import MultiImageUpload from "../ui/MultiImageUpload"
-
 export default function AddPecas({ onCreated }) {
   const [form, setForm] = useState({
     name: "",
@@ -108,11 +106,7 @@ export default function AddPecas({ onCreated }) {
             onChange={(e) => setForm({ ...form, preco: e.target.value })}
           />
 
-          <MultiImageUpload
-            label="Fotos da peça"
-            value={form.fotos}
-            onChange={(fotos) => setForm({ ...form, fotos })}
-          />
+  
 
           <DialogFooter>
             <DialogClose asChild>

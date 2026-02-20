@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "../ui/button"
+import { Button } from "./ui/button"
 import {
   Dialog,
   DialogTrigger,
@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
-} from "../ui/dialog"
+} from "./ui/dialog"
 import { Trash2 } from "lucide-react"
 import { useSecureFetch } from "@/hooks/useSecureFetch"
 import { useRefresh } from "@/context/RefreshContext"
