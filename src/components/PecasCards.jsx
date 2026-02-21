@@ -1,35 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ProgressDemo } from "@/components/Home/ProgressDemo";
+import { ProgressDemo } from "@/components/ProgressDemo";
 import { useRefresh } from "@/context/RefreshContext";
 import AddPecas from "./AddPecas";
 import EditPecas from "./EditPecas";
 import DeletePecas from "./DeletePecas";
+import { useSecureFetch } from "@/hooks/useSecureFetch";
 
 function PecasCard() {
   const [pecas, setPecas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const { refreshKey } = useRefresh();
+  const { getSessionFromCookie } = useSecureFetch();
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [pecasRes, userRes] = await Promise.all([
-          fetch(`/api/v1/pecas?k=${refreshKey}`),
-          fetch("/api/v1/auth/session", { credentials: 'include' })
-        ]);
+        const pecasRes = await fetch(`/api/v1/pecas?k=${refreshKey}`);
 
         if (pecasRes.ok) {
           const data = await pecasRes.json();
           setPecas(data.data || data);
         }
 
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          setIsAdmin(userData.user?.role === "admin");
-        }
+        const session = getSessionFromCookie();
+        setIsAdmin(session?.user?.role === "admin");
       } catch (error) {
         console.error("Erro:", error);
       } finally {

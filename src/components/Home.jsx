@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useSecureFetch } from '@/hooks/useSecureFetch';
 import {
 	LayoutDashboard,
 	Package,
@@ -135,26 +136,13 @@ function AlertItem({ title, description, variant = 'default' }) {
 export default function Home() {
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const { getSessionFromCookie } = useSecureFetch();
 
 	useEffect(() => {
-		fetchUser();
+		const session = getSessionFromCookie();
+		setUser(session?.user || null);
+		setLoading(false);
 	}, []);
-
-	async function fetchUser() {
-		try {
-			const response = await fetch('/api/v1/auth/session', {
-				credentials: 'include',
-			});
-			if (response.ok) {
-				const data = await response.json();
-				setUser(data.user);
-			}
-		} catch (error) {
-			console.error('Failed to fetch user:', error);
-		} finally {
-			setLoading(false);
-		}
-	}
 
 	const greeting = () => {
 		const hour = new Date().getHours();
