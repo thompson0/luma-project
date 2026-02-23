@@ -8,7 +8,13 @@ import EditPecas from "./EditPecas";
 import DeletePecas from "./DeletePecas";
 import Filter from "./Filter";
 import { useSecureFetch } from "@/hooks/useSecureFetch";
-
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 function PecasCard() {
   const [pecas, setPecas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,12 +57,12 @@ function PecasCard() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <Filter 
-          onFilter={(q) => { 
-            if (q === filterQuery) return; // Se for igual, não faz nada
-            setLoading(true); 
-            setFilterQuery(q); 
-          }} 
+        <Filter
+          onFilter={(q) => {
+            if (q === filterQuery) return;
+            setLoading(true);
+            setFilterQuery(q);
+          }}
         />
         {isAdmin && (
           <AddPecas
@@ -70,7 +76,7 @@ function PecasCard() {
 
       {pecas.length === 0 ? (
         <p className="text-center mt-10 text-muted-foreground">
-          {isAdmin 
+          {isAdmin
             ? 'Nenhuma peça encontrada. Clique em "Nova Peça" para adicionar.'
             : 'Nenhuma peça encontrada.'}
         </p>
@@ -81,19 +87,36 @@ function PecasCard() {
               key={p._id || p.id}
               className="w-full h-80 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden bg-card"
             >
-              <div className="flex-1 flex items-center justify-center bg-muted p-4">
-                <img
-                  src={p.fotos?.[0] || "/placeholder.png"}
-                  alt={p.name}
-                  className="w-56 h-40 object-contain transition-transform duration-300 hover:scale-105"
-                />
-              </div>
+              <div className="flex-1 bg-muted p-4">
+                <Carousel className="relative w-full h-full overflow-hidden">
+                  <CarouselContent>
+                    {(p.fotos?.length ? p.fotos : ["/placeholder.png"]).map((foto, index) => (
+                      <CarouselItem
+                        key={index}
+                        className="flex items-center justify-center"
+                      >
+                        <img
+                          src={foto}
+                          alt={`${p.name}-${index}`}
+                          className="w-56 h-40 object-contain transition-transform duration-300 hover:scale-105"
+                        />
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
 
+                  {p.fotos?.length > 1 && (
+                    <>
+                      <CarouselPrevious className="left-2" />
+                      <CarouselNext className="right-2" />
+                    </>
+                  )}
+                </Carousel>
+              </div>
               <div className="p-4 border-t space-y-2">
                 <h2 className="text-lg font-semibold truncate hover:text-blue-600 transition-colors">
                   {p.name}
                 </h2>
-                
+
                 {p.materials && (
                   <p className="text-sm text-muted-foreground">
                     Material: {p.materials}
@@ -104,7 +127,7 @@ function PecasCard() {
                   <p className="text-lg font-bold text-emerald-600">
                     R$ {p.preco?.toFixed(2) || "0.00"}
                   </p>
-                  
+
                   {isAdmin && (
                     <div className="flex items-center gap-2">
                       <EditPecas
