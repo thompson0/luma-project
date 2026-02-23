@@ -15,6 +15,7 @@ import { Input } from "../components/ui/input"
 import { PlusSquare } from "lucide-react"
 import { useSecureFetch } from "@/hooks/useSecureFetch"
 import { useRefresh } from "@/context/RefreshContext"
+import MultiImageUpload from "./MultiImageUpload"
 export default function AddPecas({ onCreated }) {
   const [form, setForm] = useState({
     name: "",
@@ -52,7 +53,7 @@ export default function AddPecas({ onCreated }) {
       )
 
       if (!res) return
-      
+
       const novaPeca = await res.json()
 
       if (onCreated) onCreated(novaPeca)
@@ -85,12 +86,15 @@ export default function AddPecas({ onCreated }) {
         </DialogHeader>
 
         <form onSubmit={handleAddPecas} className="space-y-3">
-          <Input
-            placeholder="Nome da peça"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            required
-          />
+
+            <Input
+              placeholder="Nome da peça"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+ 
+
 
           <Input
             placeholder="Material"
@@ -105,8 +109,11 @@ export default function AddPecas({ onCreated }) {
             value={form.preco}
             onChange={(e) => setForm({ ...form, preco: e.target.value })}
           />
+          <MultiImageUpload
+            value={form.fotos}
+            onChange={(newFotos) => setForm({ ...form, fotos: newFotos })}
+          />
 
-  
 
           <DialogFooter>
             <DialogClose asChild>

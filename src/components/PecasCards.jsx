@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation"
 
 import { useEffect, useState } from "react";
 import { ProgressDemo } from "@/components/ProgressDemo";
@@ -15,6 +16,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import { Input } from "./ui/input";
+import Link from "next/link";
 function PecasCard() {
   const [pecas, setPecas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,6 +25,7 @@ function PecasCard() {
   const [filterQuery, setFilterQuery] = useState("");
   const { refreshKey } = useRefresh();
   const { fetchSession } = useSecureFetch();
+  const router = useRouter()
 
   useEffect(() => {
     async function fetchData() {
@@ -113,9 +117,12 @@ function PecasCard() {
                 </Carousel>
               </div>
               <div className="p-4 border-t space-y-2">
-                <h2 className="text-lg font-semibold truncate hover:text-blue-600 transition-colors">
-                  {p.name}
-                </h2>
+                <Link href={`/catalogo/peca/${p._id || p.id}`}>
+                  <h2 className="text-lg font-semibold truncate hover:text-blue-600 transition-colors">
+                    {p.name}
+                  </h2>
+                </Link>
+
 
                 {p.materials && (
                   <p className="text-sm text-muted-foreground">
