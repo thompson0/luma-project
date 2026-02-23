@@ -2,6 +2,27 @@ import { NextResponse } from "next/server"
 import connectDB from "@/lib/mongo"
 import Pecas from "@/model/Pecas"
 
+
+export async function GET(_, context) {
+  try {
+    await connectDB()
+
+    const { id } = await context.params 
+
+    const pecas = await Pecas.findById(id)
+
+    return NextResponse.json({
+      data: pecas,
+    })
+
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Erro ao buscar peças" },
+      { status: 500 }
+    )
+  }
+}
+
 export async function DELETE(_, context) {
   try {
     await connectDB()
