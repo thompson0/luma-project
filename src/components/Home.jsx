@@ -29,7 +29,7 @@ const navigationItems = [
 	{
 		title: 'Clientes',
 		description: 'Gerenciar contatos, histórico e preferências.',
-		href: '#',
+		href: '/users',
 		icon: User,
 		color: 'from-pink-500 to-rose-500',
 	},
@@ -148,7 +148,7 @@ export default function Home() {
 
 	return (
 		<main className="min-h-screen bg-background">
-			{/* Header com Greeting */}
+
 			<section className="border-b border-border bg-card">
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -175,7 +175,7 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* Stats Cards */}
+		
 			<section className="border-b border-border bg-muted/30">
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -203,7 +203,7 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* Quick Actions Grid */}
+
 			<section className="border-b border-border">
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 					<div className="mb-8">
@@ -246,7 +246,7 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* Alerts & Actions */}
+	
 			<section className="border-b border-border">
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 					<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -305,7 +305,7 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* Footer Info */}
+			
 			<section className="bg-muted/30">
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 					<p className="text-xs text-muted-foreground">
