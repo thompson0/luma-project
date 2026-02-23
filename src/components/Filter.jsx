@@ -7,6 +7,7 @@ import { Search, X } from "lucide-react"
 
 export default function Filter({ onFilter }) {
   const [isOpen, setIsOpen] = useState(false)
+
   const [filters, setFilters] = useState({
     nome: "",
     minPreco: "",
@@ -22,14 +23,14 @@ export default function Filter({ onFilter }) {
 
   function handleApplyFilter() {
     const query = new URLSearchParams()
-    
+
     if (filters.nome) query.append("nome", filters.nome)
     if (filters.minPreco) query.append("minPreco", filters.minPreco)
     if (filters.maxPreco) query.append("maxPreco", filters.maxPreco)
     if (filters.dataInicio) query.append("dataInicio", filters.dataInicio)
     if (filters.dataFim) query.append("dataFim", filters.dataFim)
 
-    onFilter(query.toString())
+    onFilter(query.toString()) // 🔥 sempre permite aplicar
     setIsOpen(false)
   }
 
@@ -41,11 +42,12 @@ export default function Filter({ onFilter }) {
       dataInicio: "",
       dataFim: "",
     })
-    onFilter("")
+
+    onFilter("") 
   }
 
   return (
-    <div className="flex gap-2">
+    <div className="relative flex gap-2">
       <Button
         variant="outline"
         size="sm"
@@ -56,22 +58,20 @@ export default function Filter({ onFilter }) {
         Filtros
       </Button>
 
-      {(filters.nome || filters.minPreco || filters.maxPreco || filters.dataInicio || filters.dataFim) && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleClearFilter}
-          className="gap-2 text-destructive"
-        >
-          <X className="h-4 w-4" />
-          Limpar
-        </Button>
-      )}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleClearFilter}
+        className="gap-2 text-destructive"
+      >
+        <X className="h-4 w-4" />
+        Limpar filtros
+      </Button>
 
       {isOpen && (
-        <div className="absolute top-12 right-0 bg-card border border-border rounded-lg shadow-lg p-4 z-50 w-80">
+        <div className="absolute top-full left-0 mt-2 bg-card border border-border rounded-lg shadow-lg p-4 z-50 w-80">
           <div className="space-y-4">
-            {/* Preço */}
+
             <div className="space-y-1">
               <label className="text-sm font-medium">Preço</label>
               <div className="flex gap-2">
@@ -94,7 +94,6 @@ export default function Filter({ onFilter }) {
               </div>
             </div>
 
-            {/* Data */}
             <div className="space-y-1">
               <label className="text-sm font-medium">Data de Criação</label>
               <div className="flex gap-2">
@@ -113,7 +112,6 @@ export default function Filter({ onFilter }) {
               </div>
             </div>
 
-            {/* Buttons */}
             <div className="flex gap-2 pt-2">
               <Button
                 size="sm"
@@ -129,6 +127,7 @@ export default function Filter({ onFilter }) {
                 Aplicar Filtros
               </Button>
             </div>
+
           </div>
         </div>
       )}

@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { useRefresh } from "@/context/RefreshContext"
 
 export default function LoginForm() {
   const router = useRouter()
+  const { triggerRefresh } = useRefresh()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -35,6 +37,9 @@ export default function LoginForm() {
         throw new Error("Email ou senha inválidos")
       }
 
+      // Aguarda a sessão estar disponível antes de navegar
+      await fetch("/api/v1/auth/get-session", { credentials: "include" })
+      triggerRefresh()
       router.push("/catalogo")
     } catch (err) {
       setError(err.message)

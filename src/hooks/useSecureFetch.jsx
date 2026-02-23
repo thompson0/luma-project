@@ -34,6 +34,21 @@ function getSessionFromCookie() {
   }
 }
 
+async function fetchSession() {
+  try {
+    const res = await fetch("/api/v1/auth/get-session", {
+      method: "GET",
+      credentials: "include",
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    return data?.session ? data : null
+  } catch (err) {
+    console.error("Erro ao buscar sessão:", err)
+    return null
+  }
+}
+
 export function useSecureFetch() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -72,5 +87,5 @@ export function useSecureFetch() {
     }
   }
 
-  return { secureFetch, loading, getSessionFromCookie }
+  return { secureFetch, loading, getSessionFromCookie, fetchSession }
 }

@@ -1,21 +1,22 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import AddPecas from "@/components/AddPecas"
 import NavHome from "@/components/NavHome"
 import { useSecureFetch } from "@/hooks/useSecureFetch"
 import PecasCard from "@/components/PecasCards"
-import Filter from "@/components/Filter"
 
 function Catalogo() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  const { getSessionFromCookie } = useSecureFetch()
+  const { fetchSession } = useSecureFetch()
 
   useEffect(() => {
-    const session = getSessionFromCookie()
-    setUser(session?.user || null)
-    setLoading(false)
+    async function checkSession() {
+      const session = await fetchSession()
+      setUser(session?.user || null)
+      setLoading(false)
+    }
+    checkSession()
   }, [])
 
   const isAdmin = user?.role === "admin"
@@ -40,12 +41,10 @@ function Catalogo() {
             </p>
           </div>
 
-          {!loading && isAdmin && <AddPecas />}
         </div>
 
 
         <section>
-            <Filter></Filter>
           <PecasCard />
         </section>
 

@@ -5,12 +5,30 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { DarkMode } from "@/components/DarkMode";
 import { PlayCircleIcon, Bars3Icon, XMarkIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
-import { Facebook, Instagram } from "lucide-react";
+import { Facebook, Instagram, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSecureFetch } from "@/hooks/useSecureFetch";
+import { useRefresh } from "@/context/RefreshContext";
 
 function NavHome() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { fetchSession } = useSecureFetch();
+  const { refreshKey, triggerRefresh } = useRefresh();
+  const router = useRouter();
+
+  async function handleLogout() {
+    try {
+      await fetch("/api/v1/auth/sign-out", { method: "POST" });
+    } catch (err) {
+      console.error("Erro ao fazer logout:", err);
+    }
+    triggerRefresh();
+    router.push("/");
+    router.refresh();
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,6 +37,16 @@ function NavHome() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function checkSession() {
+      const session = await fetchSession();
+      if (!cancelled) setIsLoggedIn(!!session);
+    }
+    checkSession();
+    return () => { cancelled = true; };
+  }, [refreshKey]);
 
   return (
     <nav
@@ -92,13 +120,27 @@ function NavHome() {
               </Button>
             </Link>
 
-            <Link href="/login">
+            {isLoggedIn ? (
               <Button
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+                onClick={handleLogout}
+                variant="ghost"
+                className={`flex gap-2 items-center transition-colors ${isScrolled
+                  ? "text-foreground hover:bg-accent hover:text-foreground"
+                  : "text-foreground dark:text-white hover:bg-accent/40 dark:hover:bg-white/10"
+                }`}
               >
-                Entrar
+                <LogOut className="w-5 h-5" />
+                Sair
               </Button>
-            </Link>
+            ) : (
+              <Link href="/login">
+                <Button
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+                >
+                  Entrar
+                </Button>
+              </Link>
+            )}
           </div>
 
           <button
@@ -130,9 +172,25 @@ function NavHome() {
             <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
               <Button variant="ghost" className="w-full justify-start gap-2 text-foreground">
                 <PlayCircleIcon className="w-5 h-5" />
-                Login
+                Vídeos
               </Button>
             </Link>
+            {isLoggedIn ? (
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2 text-foreground"
+                onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
+              >
+                <LogOut className="w-5 h-5" />
+                Sair
+              </Button>
+            ) : (
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start gap-2 text-foreground">
+                  Entrar
+                </Button>
+              </Link>
+            )}
             <div className="pt-2 border-t border-border">
               <DarkMode />
             </div>

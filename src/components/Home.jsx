@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useSecureFetch } from '@/hooks/useSecureFetch';
+import { useRefresh } from '@/context/RefreshContext';
 import {
 	LayoutDashboard,
 	Package,
@@ -24,21 +25,7 @@ const navigationItems = [
 		href: '/catalogo',
 		icon: Package,
 		color: 'from-blue-500 to-cyan-500',
-	},
-	{
-		title: 'Análise de vendas',
-		description: 'Visão geral de desempenho e métricas da loja.',
-		href: '#',
-		icon: TrendingUp,
-		color: 'from-emerald-500 to-teal-500',
-	},
-	{
-		title: 'Pedidos em aberto',
-		description: 'Acompanhe pedidos e status de entrega.',
-		href: '#',
-		icon: Clock,
-		color: 'from-amber-500 to-orange-500',
-	},
+	},	
 	{
 		title: 'Clientes',
 		description: 'Gerenciar contatos, histórico e preferências.',
@@ -136,13 +123,21 @@ function AlertItem({ title, description, variant = 'default' }) {
 export default function Home() {
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
-	const { getSessionFromCookie } = useSecureFetch();
+	const { fetchSession } = useSecureFetch();
+	const { refreshKey } = useRefresh();
 
 	useEffect(() => {
-		const session = getSessionFromCookie();
-		setUser(session?.user || null);
-		setLoading(false);
-	}, []);
+		let cancelled = false;
+		async function checkSession() {
+			const session = await fetchSession();
+			if (!cancelled) {
+				setUser(session?.user || null);
+				setLoading(false);
+			}
+		}
+		checkSession();
+		return () => { cancelled = true; };
+	}, [refreshKey]);
 
 	const greeting = () => {
 		const hour = new Date().getHours();
@@ -295,14 +290,7 @@ export default function Home() {
 									<TrendingUp className="mr-2 h-4 w-4" />
 									Gerar relatório
 								</Button>
-								<Button
-									className="w-full justify-start"
-									variant="outline"
-									size="sm"
-								>
-									<Clock className="mr-2 h-4 w-4" />
-									Ver pedidos
-								</Button>
+							
 								<Button
 									className="w-full justify-start"
 									variant="outline"

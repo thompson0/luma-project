@@ -6,27 +6,30 @@ import { useRefresh } from "@/context/RefreshContext";
 import AddPecas from "./AddPecas";
 import EditPecas from "./EditPecas";
 import DeletePecas from "./DeletePecas";
+import Filter from "./Filter";
 import { useSecureFetch } from "@/hooks/useSecureFetch";
 
 function PecasCard() {
   const [pecas, setPecas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [filterQuery, setFilterQuery] = useState("");
   const { refreshKey } = useRefresh();
-  const { getSessionFromCookie } = useSecureFetch();
+  const { fetchSession } = useSecureFetch();
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const pecasRes = await fetch(`/api/v1/pecas?k=${refreshKey}`);
+        const params = filterQuery ? `${filterQuery}&k=${refreshKey}` : `k=${refreshKey}`;
+        const pecasRes = await fetch(`/api/v1/pecas?${params}`);
 
         if (pecasRes.ok) {
           const data = await pecasRes.json();
           setPecas(data.data || data);
         }
 
-        const session = getSessionFromCookie();
-        setIsAdmin(session?.user?.role === "admin");
+        const session = await fetchSession();
+        setIsAdmin(!!session && session?.user?.role === "admin");
       } catch (error) {
         console.error("Erro:", error);
       } finally {
@@ -35,7 +38,7 @@ function PecasCard() {
     }
 
     fetchData();
-  }, [refreshKey]);
+  }, [refreshKey, filterQuery]);
 
   if (loading)
     return (
@@ -47,16 +50,23 @@ function PecasCard() {
 
   return (
     <div className="flex flex-col gap-6">
-      {isAdmin && (
-        <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <Filter 
+          onFilter={(q) => { 
+            if (q === filterQuery) return; // Se for igual, não faz nada
+            setLoading(true); 
+            setFilterQuery(q); 
+          }} 
+        />
+        {isAdmin && (
           <AddPecas
             onCreated={(nova) => {
               if (!nova) return;
               setPecas((prev) => [nova, ...prev]);
             }}
           />
-        </div>
-      )}
+        )}
+      </div>
 
       {pecas.length === 0 ? (
         <p className="text-center mt-10 text-muted-foreground">
