@@ -55,30 +55,33 @@ function PecasCard() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4">
-        <SearchBar
-          onSearch={(q) => {
-            if (q === searchQuery) return;
-            setSearchQuery(q);
-          }}
-          placeholder="Buscar peças pelo nome..."
-        />
-        <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3 flex-wrap">
           <Filter
-            onFilter={(q) => {
-              if (q === filterQuery) return;
-              setFilterQuery(q);
+          onFilter={(q) => {
+            if (q === filterQuery) return;
+            setFilterQuery(q);
+          }}
+        />
+        <div className="flex-1 flex justify-center">
+          <SearchBar
+            onSearch={(q) => {
+              if (q === searchQuery) return;
+              setSearchQuery(q);
             }}
+            placeholder="Buscar peças pelo nome..."
           />
-          {isAdmin && (
-          <AddPecas
-            onCreated={(nova) => {
-              if (!nova) return;
-              setPecas((prev) => [nova, ...prev]);
-            }}
-          />
-          )}
         </div>
+      
+        {isAdmin && (
+          <div className="ml-auto">
+            <AddPecas
+              onCreated={(nova) => {
+                if (!nova) return;
+                setPecas((prev) => [nova, ...prev]);
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {loading ? (

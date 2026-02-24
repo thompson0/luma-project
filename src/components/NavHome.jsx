@@ -87,7 +87,7 @@ function NavHome() {
           <div className="hidden md:flex items-center gap-2">
             <DarkMode />
 
-            <Link href="#" aria-label="Instagram">
+            <Link href="https://www.instagram.com/luma_semijoiasartesanais/"  aria-label="Instagram">
               <Button
                 variant="ghost"
                 size="icon"
@@ -97,19 +97,6 @@ function NavHome() {
                 }`}
               >
                 <Instagram className="w-5 h-5" />
-              </Button>
-            </Link>
-
-            <Link href="#" aria-label="Facebook">
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`transition-colors ${isScrolled
-                  ? "text-foreground hover:bg-accent hover:text-foreground"
-                  : "text-foreground dark:text-white hover:bg-accent/40 dark:hover:bg-white/10"
-                }`}
-              >
-                <Facebook className="w-5 h-5" />
               </Button>
             </Link>
 
@@ -164,14 +151,10 @@ function NavHome() {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-background/95 backdrop-blur-md border-t border-border py-4 px-2 space-y-2">
             <div className="flex items-center gap-2">
-              <Link href="#" aria-label="Instagram">
-                <Button variant="ghost" size="icon" className="text-foreground">
+              <Link href="https://www.instagram.com/luma_semijoiasartesanais/" aria-label="Instagram">
+                <Button variant="ghost" className="w-full justify-start gap-2 text-foreground">
                   <Instagram className="w-5 h-5" />
-                </Button>
-              </Link>
-              <Link href="#" aria-label="Facebook">
-                <Button variant="ghost" size="icon" className="text-foreground">
-                  <Facebook className="w-5 h-5" />
+                  Instagram
                 </Button>
               </Link>
             </div>

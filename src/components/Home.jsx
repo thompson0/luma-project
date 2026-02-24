@@ -178,27 +178,19 @@ export default function Home() {
 		
 			<section className="border-b border-border bg-muted/30">
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-						<StatsCard
-							icon={Package}
-							label="Total de peças"
-							loading={loading}
-						/>
-						<StatsCard
-							icon={TrendingUp}
-							label="Faturamento mês"
-							loading={loading}
-						/>
-						<StatsCard
-							icon={Clock}
-							label="Pedidos abertos"
-							loading={loading}
-						/>
-						<StatsCard
-							icon={User}
-							label="Usuarios ativos"
-							loading={loading}
-						/>
+					<div className="flex justify-center">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
+							<StatsCard
+								icon={Package}
+								label="Total de peças"
+								loading={loading}
+							/>
+							<StatsCard
+								icon={User}
+								label="Usuarios ativos"
+								loading={loading}
+							/>
+						</div>
 					</div>
 				</div>
 			</section>

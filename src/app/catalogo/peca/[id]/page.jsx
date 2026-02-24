@@ -132,26 +132,8 @@ function PecaDetalhes() {
               </div>
             )}
 
-            {/* Carousel mobile */}
-            {fotos.length > 1 && (
-              <div className="lg:hidden">
-                <Carousel className="w-full">
-                  <CarouselContent>
-                    {fotos.map((foto, index) => (
-                      <CarouselItem key={index} className="flex items-center justify-center">
-                        <img
-                          src={foto}
-                          alt={`${peca.name} - ${index + 1}`}
-                          className="w-full h-64 object-contain"
-                        />
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="left-2" />
-                  <CarouselNext className="right-2" />
-                </Carousel>
-              </div>
-            )}
+         
+     
           </div>
 
           {/* Informações da peça */}

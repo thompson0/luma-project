@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, X } from "lucide-react"
+import { Funnel, X } from "lucide-react"
 
 export default function Filter({ onFilter }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -54,7 +54,7 @@ export default function Filter({ onFilter }) {
         onClick={() => setIsOpen(!isOpen)}
         className="gap-2"
       >
-        <Search className="h-4 w-4" />
+        <Funnel className="h-4 w-4" />
         Filtros
       </Button>
 
