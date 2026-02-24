@@ -39,6 +39,7 @@ async function fetchSession() {
     const res = await fetch("/api/v1/auth/get-session", {
       method: "GET",
       credentials: "include",
+      cache: "no-store",
     })
     if (!res.ok) return null
     const data = await res.json()

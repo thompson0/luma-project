@@ -27,7 +27,7 @@ const navigationItems = [
 		color: 'from-blue-500 to-cyan-500',
 	},	
 	{
-		title: 'Clientes',
+		title: 'Usuarios',
 		description: 'Gerenciar contatos, histórico e preferências.',
 		href: '/users',
 		icon: User,
@@ -196,7 +196,7 @@ export default function Home() {
 						/>
 						<StatsCard
 							icon={User}
-							label="Clientes ativos"
+							label="Usuarios ativos"
 							loading={loading}
 						/>
 					</div>
@@ -297,7 +297,7 @@ export default function Home() {
 									size="sm"
 								>
 									<User className="mr-2 h-4 w-4" />
-									Novo cliente
+									Novo Usuario
 								</Button>
 							</div>
 						</div>

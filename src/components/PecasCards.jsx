@@ -8,6 +8,7 @@ import AddPecas from "./AddPecas";
 import EditPecas from "./EditPecas";
 import DeletePecas from "./DeletePecas";
 import Filter from "./Filter";
+import SearchBar from "./SearchBar";
 import { useSecureFetch } from "@/hooks/useSecureFetch";
 import {
   Carousel,
@@ -23,6 +24,7 @@ function PecasCard() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [filterQuery, setFilterQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const { refreshKey } = useRefresh();
   const { fetchSession } = useSecureFetch();
   const router = useRouter()
@@ -30,7 +32,8 @@ function PecasCard() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const params = filterQuery ? `${filterQuery}&k=${refreshKey}` : `k=${refreshKey}`;
+        let params = filterQuery ? `${filterQuery}&k=${refreshKey}` : `k=${refreshKey}`;
+        if (searchQuery) params += `&nome=${encodeURIComponent(searchQuery)}`;
         const pecasRes = await fetch(`/api/v1/pecas?${params}`);
 
         if (pecasRes.ok) {
@@ -48,37 +51,42 @@ function PecasCard() {
     }
 
     fetchData();
-  }, [refreshKey, filterQuery]);
-
-  if (loading)
-    return (
-      <div>
-        <p className="text-center mt-10">Carregando peças...</p>
-        <ProgressDemo />
-      </div>
-    );
+  }, [refreshKey, filterQuery, searchQuery]);
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <Filter
-          onFilter={(q) => {
-            if (q === filterQuery) return;
-            setLoading(true);
-            setFilterQuery(q);
+      <div className="flex flex-col gap-4">
+        <SearchBar
+          onSearch={(q) => {
+            if (q === searchQuery) return;
+            setSearchQuery(q);
           }}
+          placeholder="Buscar peças pelo nome..."
         />
-        {isAdmin && (
+        <div className="flex items-center justify-between">
+          <Filter
+            onFilter={(q) => {
+              if (q === filterQuery) return;
+              setFilterQuery(q);
+            }}
+          />
+          {isAdmin && (
           <AddPecas
             onCreated={(nova) => {
               if (!nova) return;
               setPecas((prev) => [nova, ...prev]);
             }}
           />
-        )}
+          )}
+        </div>
       </div>
 
-      {pecas.length === 0 ? (
+      {loading ? (
+        <div>
+          <p className="text-center mt-10">Carregando peças...</p>
+          <ProgressDemo />
+        </div>
+      ) : pecas.length === 0 ? (
         <p className="text-center mt-10 text-muted-foreground">
           {isAdmin
             ? 'Nenhuma peça encontrada. Clique em "Nova Peça" para adicionar.'

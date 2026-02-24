@@ -21,10 +21,16 @@ function NavHome() {
 
   async function handleLogout() {
     try {
-      await fetch("/api/v1/auth/sign-out", { method: "POST" });
+      await fetch("/api/v1/auth/sign-out", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
     } catch (err) {
       console.error("Erro ao fazer logout:", err);
     }
+    setIsLoggedIn(false);
     triggerRefresh();
     router.push("/");
     router.refresh();
