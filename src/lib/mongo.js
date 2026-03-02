@@ -16,7 +16,10 @@ async function connectDB() {
   if (cached.conn) return cached.conn
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGO_DB_URL)
+    cached.promise = mongoose.connect(MONGO_DB_URL, {
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+    })
   }
 
   cached.conn = await cached.promise
