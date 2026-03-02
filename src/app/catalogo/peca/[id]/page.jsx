@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/carousel"
 import { ArrowLeftIcon, CalendarIcon } from "@heroicons/react/24/outline"
 import { Package, Gem, DollarSign } from "lucide-react"
+import { useSession } from "@/context/SessionContext"
 
 function PecaDetalhes() {
   const { id } = useParams()
@@ -24,6 +25,7 @@ function PecaDetalhes() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [selectedImage, setSelectedImage] = useState(0)
+  const { isAdmin } = useSession()
 
   useEffect(() => {
     if (!id) return
@@ -145,18 +147,20 @@ function PecaDetalhes() {
               </h1>
             </div>
 
-            {/* Preço */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                <DollarSign className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+            {/* Preço - apenas admins */}
+            {isAdmin && (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+                  <DollarSign className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Preço</p>
+                  <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                    R$ {peca.preco?.toFixed(2) || "0,00"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Preço</p>
-                <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-                  R$ {peca.preco?.toFixed(2) || "0,00"}
-                </p>
-              </div>
-            </div>
+            )}
 
             {/* Detalhes */}
             <div className="space-y-4">

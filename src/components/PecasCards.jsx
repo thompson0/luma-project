@@ -138,9 +138,11 @@ function PecasCard() {
                 )}
 
                 <div className="flex items-center justify-between pt-2">
-                  <p className="text-lg font-bold text-emerald-600">
-                    R$ {p.preco?.toFixed(2) || "0.00"}
-                  </p>
+                  {isAdmin && (
+                    <p className="text-lg font-bold text-emerald-600">
+                      R$ {p.preco?.toFixed(2) || "0.00"}
+                    </p>
+                  )}
 
                   {isAdmin && (
                     <div className="flex items-center gap-2">
