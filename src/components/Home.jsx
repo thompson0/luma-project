@@ -1,10 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useSecureFetch } from '@/hooks/useSecureFetch';
-import { useRefresh } from '@/context/RefreshContext';
+import { useSession } from '@/context/SessionContext';
 import {
 	LayoutDashboard,
 	Package,
@@ -121,23 +119,7 @@ function AlertItem({ title, description, variant = 'default' }) {
 }
 
 export default function Home() {
-	const [user, setUser] = useState(null);
-	const [loading, setLoading] = useState(true);
-	const { fetchSession } = useSecureFetch();
-	const { refreshKey } = useRefresh();
-
-	useEffect(() => {
-		let cancelled = false;
-		async function checkSession() {
-			const session = await fetchSession();
-			if (!cancelled) {
-				setUser(session?.user || null);
-				setLoading(false);
-			}
-		}
-		checkSession();
-		return () => { cancelled = true; };
-	}, [refreshKey]);
+	const { user, sessionLoading: loading } = useSession();
 
 	const greeting = () => {
 		const hour = new Date().getHours();

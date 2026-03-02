@@ -3,6 +3,7 @@ import "./globals.css";
 
 import { AlertProvider } from "@/context/AlertContext";
 import { RefreshProvider } from "@/context/RefreshContext";
+import { SessionProvider } from "@/context/SessionContext";
 import { ThemeProvider } from "next-themes";
 import { NavigationLoader } from "@/components/ui/NavigationLoader";
 
@@ -29,14 +30,16 @@ export default function RootLayout({ children }) {
       >
         <AlertProvider>
           <RefreshProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-            >
-              <NavigationLoader />
-              {children}
-            </ThemeProvider>
+            <SessionProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+              >
+                <NavigationLoader />
+                {children}
+              </ThemeProvider>
+            </SessionProvider>
           </RefreshProvider>
         </AlertProvider>
       </body>

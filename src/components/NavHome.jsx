@@ -8,15 +8,14 @@ import { PlayCircleIcon, Bars3Icon, XMarkIcon, ChatBubbleLeftRightIcon } from "@
 import { Facebook, Instagram, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSecureFetch } from "@/hooks/useSecureFetch";
+import { useSession } from "@/context/SessionContext";
 import { useRefresh } from "@/context/RefreshContext";
 
 function NavHome() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { fetchSession } = useSecureFetch();
-  const { refreshKey, triggerRefresh } = useRefresh();
+  const { isLoggedIn } = useSession();
+  const { triggerRefresh } = useRefresh();
   const router = useRouter();
 
   async function handleLogout() {
@@ -30,7 +29,6 @@ function NavHome() {
     } catch (err) {
       console.error("Erro ao fazer logout:", err);
     }
-    setIsLoggedIn(false);
     triggerRefresh();
     router.push("/");
     router.refresh();
@@ -44,15 +42,7 @@ function NavHome() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function checkSession() {
-      const session = await fetchSession();
-      if (!cancelled) setIsLoggedIn(!!session);
-    }
-    checkSession();
-    return () => { cancelled = true; };
-  }, [refreshKey]);
+
 
   return (
     <nav

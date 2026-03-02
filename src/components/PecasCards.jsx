@@ -9,7 +9,7 @@ import EditPecas from "./EditPecas";
 import DeletePecas from "./DeletePecas";
 import Filter from "./Filter";
 import SearchBar from "./SearchBar";
-import { useSecureFetch } from "@/hooks/useSecureFetch";
+import { useSession } from "@/context/SessionContext";
 import {
   Carousel,
   CarouselContent,
@@ -22,11 +22,10 @@ import Link from "next/link";
 function PecasCard() {
   const [pecas, setPecas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [filterQuery, setFilterQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const { refreshKey } = useRefresh();
-  const { fetchSession } = useSecureFetch();
+  const { isAdmin } = useSession();
   const router = useRouter()
 
   useEffect(() => {
@@ -40,9 +39,6 @@ function PecasCard() {
           const data = await pecasRes.json();
           setPecas(data.data || data);
         }
-
-        const session = await fetchSession();
-        setIsAdmin(!!session && session?.user?.role === "admin");
       } catch (error) {
         console.error("Erro:", error);
       } finally {

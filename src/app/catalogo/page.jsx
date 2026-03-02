@@ -1,25 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import NavHome from "@/components/NavHome"
-import { useSecureFetch } from "@/hooks/useSecureFetch"
+import { useSession } from "@/context/SessionContext"
 import PecasCard from "@/components/PecasCards"
 
 function Catalogo() {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const { fetchSession } = useSecureFetch()
-
-  useEffect(() => {
-    async function checkSession() {
-      const session = await fetchSession()
-      setUser(session?.user || null)
-      setLoading(false)
-    }
-    checkSession()
-  }, [])
-
-  const isAdmin = user?.role === "admin"
+  const { user, isAdmin } = useSession()
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
