@@ -1,6 +1,16 @@
 import { auth, db } from "@/lib/auth"
 import { headers } from "next/headers"
 import { NextResponse } from "next/server"
+import { ObjectId } from "mongodb"
+
+// Tenta converter pra ObjectId, senão usa string
+function toId(id) {
+  try {
+    return ObjectId.isValid(id) ? new ObjectId(id) : id
+  } catch {
+    return id
+  }
+}
 
 export async function GET(request, { params }) {
   try {
@@ -13,7 +23,7 @@ export async function GET(request, { params }) {
     }
 
     const { id } = await params
-    const user = await db.collection("user").findOne({ _id: id })
+    const user = await db.collection("user").findOne({ _id: toId(id) })
 
     if (!user) {
       return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
@@ -43,7 +53,7 @@ export async function PUT(request, { params }) {
     delete body.email
 
     const result = await db.collection("user").findOneAndUpdate(
-      { _id: id },
+      { _id: toId(id) },
       { $set: { ...body, updatedAt: new Date() } },
       { returnDocument: "after" }
     )
@@ -69,8 +79,9 @@ export async function DELETE(request, { params }) {
     }
 
     const { id } = await params
+    const objectId = toId(id)
 
-    const user = await db.collection("user").findOneAndDelete({ _id: id })
+    const user = await db.collection("user").findOneAndDelete({ _id: objectId })
 
     if (!user) {
       return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
