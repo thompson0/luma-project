@@ -1,49 +1,87 @@
-import connectDB from "@/lib/mongo";
-import User from "@/model/User";
-import { NextResponse } from "next/server";
+import { auth, db } from "@/lib/auth"
+import { headers } from "next/headers"
+import { NextResponse } from "next/server"
 
 export async function GET(request, { params }) {
-  await connectDB();
   try {
-    const { id } = await params;
-    const user = await User.findById(id).select("-senha");
-    if (!user) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    })
+
+    if (!session) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
-    return NextResponse.json(user);
+
+    const { id } = await params
+    const user = await db.collection("user").findOne({ _id: id })
+
+    if (!user) {
+      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
+    }
+
+    return NextResponse.json(user)
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
 
 export async function PUT(request, { params }) {
-  await connectDB();
   try {
-    const { id } = await params;
-    const body = await request.json();
-    const user = await User.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!user) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    })
+
+    if (!session) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
-    return NextResponse.json(user);
+
+    const { id } = await params
+    const body = await request.json()
+
+    // Não permite atualizar campos sensíveis
+    delete body._id
+    delete body.email
+
+    const result = await db.collection("user").findOneAndUpdate(
+      { _id: id },
+      { $set: { ...body, updatedAt: new Date() } },
+      { returnDocument: "after" }
+    )
+
+    if (!result) {
+      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
+    }
+
+    return NextResponse.json(result)
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ error: error.message }, { status: 400 })
   }
 }
 
 export async function DELETE(request, { params }) {
-  await connectDB();
   try {
-    const { id } = await params;
-    const user = await User.findByIdAndDelete(id);
-    if (!user) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    })
+
+    if (!session) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
-    return NextResponse.json({ message: "Usuário deletado com sucesso" });
+
+    const { id } = await params
+
+    const user = await db.collection("user").findOneAndDelete({ _id: id })
+
+    if (!user) {
+      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
+    }
+
+    // Limpa sessions e accounts associadas do Better Auth
+    await db.collection("session").deleteMany({ userId: id })
+    await db.collection("account").deleteMany({ userId: id })
+
+    return NextResponse.json({ message: "Usuário deletado com sucesso" })
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

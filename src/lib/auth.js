@@ -69,6 +69,7 @@ async function getMongoClient() {
 
 // Inicializar cliente
 const client = await getMongoClient()
+export const db = client.db()
 
 export const auth = betterAuth({
   database: mongodbAdapter(client.db()),
