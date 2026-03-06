@@ -6,7 +6,6 @@ function generateToken() {
   return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("")
 }
 
-// Rotas públicas que não precisam de autenticação
 const publicRoutes = ["/login", "/api/v1/auth"]
 
 export function middleware(req) {
