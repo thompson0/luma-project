@@ -17,11 +17,9 @@ export function middleware(req) {
     return res
   }
 
-  // Verifica o cookie de sessão do better-auth (prefix "luma")
   const sessionToken = req.cookies.get("luma.session_token")?.value
 
   if (!sessionToken) {
-    // Para rotas de API, retorna 401 em vez de redirecionar
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
