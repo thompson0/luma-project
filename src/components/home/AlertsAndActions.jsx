@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Package,
@@ -7,6 +8,7 @@ import {
   User,
   AlertCircle,
   CheckCircle2,
+  Loader2,
 } from "lucide-react"
 
 function AlertItem({ title, description, variant = "default" }) {
@@ -72,7 +74,100 @@ function AlertItem({ title, description, variant = "default" }) {
   )
 }
 
+function formatUptime(seconds) {
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  if (h > 0) return `${h}h ${m}min`
+  return `${m}min`
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return null
+  const date = new Date(dateStr)
+  return date.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
 export default function AlertsAndActions() {
+  const [health, setHealth] = useState(null)
+  const [backup, setBackup] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [healthRes, backupRes] = await Promise.all([
+          fetch("/api/v1/health"),
+          fetch("/api/v1/backup"),
+        ])
+
+        const healthData = await healthRes.json()
+        const backupData = await backupRes.json()
+
+        setHealth({ ...healthData, ok: healthRes.ok })
+        setBackup({ ...backupData, ok: backupRes.ok })
+      } catch {
+        setHealth({ ok: false })
+        setBackup({ ok: false })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  const alerts = []
+
+  if (loading) {
+    alerts.push({
+      title: "Carregando status...",
+      description: "Verificando saúde do sistema e backup.",
+      variant: "default",
+    })
+  } else {
+    // Health / API
+    if (health?.ok && health?.db === "connected") {
+      alerts.push({
+        title: "API conectada",
+        description: `Banco de dados operacional. Uptime: ${formatUptime(health.uptime)}.`,
+        variant: "success",
+      })
+    } else {
+      alerts.push({
+        title: "API com problema",
+        description: health?.error || "Não foi possível conectar ao banco de dados.",
+        variant: "warning",
+      })
+    }
+
+    // Backup
+    if (backup?.ok && backup?.lastBackup) {
+      alerts.push({
+        title: "Backup realizado",
+        description: `Último backup: ${formatDate(backup.lastBackup)} — Status: ${backup.status}, Tipo: ${backup.type}.`,
+        variant: "success",
+      })
+    } else if (backup?.ok && !backup?.lastBackup) {
+      alerts.push({
+        title: "Nenhum backup encontrado",
+        description: "Nenhum snapshot de backup disponível. Verifique se o plano do cluster suporta backups.",
+        variant: "warning",
+      })
+    } else {
+      alerts.push({
+        title: "Erro ao verificar backup",
+        description: backup?.error || "Não foi possível consultar o status do backup.",
+        variant: "warning",
+      })
+    }
+  }
+
   return (
     <section className="border-b border-border">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -80,21 +175,16 @@ export default function AlertsAndActions() {
           <div className="lg:col-span-2">
             <h2 className="mb-6 text-2xl font-bold tracking-tight">Avisos</h2>
             <div className="space-y-4">
-              <AlertItem
-                title="Reposição em andamento"
-                description="Últimos itens da coleção primavera serão enviados hoje."
-                variant="warning"
-              />
-              <AlertItem
-                title="Backup realizado"
-                description="Backup automático concluído com sucesso às 3:15 AM."
-                variant="success"
-              />
-              <AlertItem
-                title="API conectada"
-                description="Integração com sistema de carrinhos está operacional."
-                variant="success"
-              />
+              {loading ? (
+                <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Verificando status do sistema...
+                </div>
+              ) : (
+                alerts.map((alert, i) => (
+                  <AlertItem key={i} {...alert} />
+                ))
+              )}
             </div>
           </div>
 
