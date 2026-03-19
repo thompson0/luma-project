@@ -16,7 +16,7 @@ import { PlusSquare } from "lucide-react"
 import { useSecureFetch } from "@/hooks/useSecureFetch"
 import { useRefresh } from "@/context/RefreshContext"
 import MultiImageUpload from "./MultiImageUpload"
-export default function AddPecas({ onCreated }) {
+export default function AddPecas({ onCreated, trigger, canOpen = true, onDeniedOpen }) {
   const [form, setForm] = useState({
     name: "",
     materials: "",
@@ -73,11 +73,22 @@ export default function AddPecas({ onCreated }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (nextOpen && !canOpen) {
+          if (onDeniedOpen) onDeniedOpen()
+          return
+        }
+        setOpen(nextOpen)
+      }}
+    >
       <DialogTrigger asChild>
-        <Button size="icon">
-          <PlusSquare />
-        </Button>
+        {trigger || (
+          <Button size="icon">
+            <PlusSquare />
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="max-h-[90vh] overflow-y-auto">

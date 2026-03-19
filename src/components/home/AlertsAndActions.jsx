@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
+import AddPecas from "@/components/AddPecas"
+import AddUserDialog from "@/components/users/AddUserDialog"
+import { useAlert } from "@/context/AlertContext"
+import { useSession } from "@/context/SessionContext"
 import {
   Package,
   TrendingUp,
@@ -97,6 +101,47 @@ export default function AlertsAndActions() {
   const [health, setHealth] = useState(null)
   const [backup, setBackup] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [addUserOpen, setAddUserOpen] = useState(false)
+  const [addUserForm, setAddUserForm] = useState({ name: "", email: "", password: "", role: "user" })
+  const [addUserLoading, setAddUserLoading] = useState(false)
+  const { triggerAlert } = useAlert()
+  const { isLoggedIn, isAdmin } = useSession()
+
+  function alertNoPermission() {
+    triggerAlert("error", "Sem permissão", "Você não possui permissão para essa ação.")
+  }
+
+  const canManage = isLoggedIn && isAdmin
+
+  async function handleAddUser() {
+    setAddUserLoading(true)
+    try {
+      const res = await fetch("/api/v1/auth/sign-up/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: addUserForm.name,
+          email: addUserForm.email,
+          password: addUserForm.password,
+          role: addUserForm.role,
+        }),
+      })
+
+      if (!res.ok) {
+        const err = await res.text().catch(() => "")
+        triggerAlert("error", "Erro!", err || "Erro ao criar usuário.")
+        return
+      }
+
+      triggerAlert("success", "Sucesso!", "Usuário criado com sucesso.")
+      setAddUserForm({ name: "", email: "", password: "", role: "user" })
+      setAddUserOpen(false)
+    } catch {
+      triggerAlert("error", "Erro!", "Falha ao criar usuário.")
+    } finally {
+      setAddUserLoading(false)
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -191,15 +236,32 @@ export default function AlertsAndActions() {
           <div>
             <h2 className="mb-6 text-2xl font-bold tracking-tight">Ações</h2>
             <div className="space-y-3">
-              <Button className="w-full justify-start" variant="outline" size="sm">
-                <Package className="mr-2 h-4 w-4" />
-                Adicionar peça
-              </Button>
+              <AddPecas
+                canOpen={canManage}
+                onDeniedOpen={alertNoPermission}
+                trigger={(
+                  <Button className="w-full justify-start" variant="outline" size="sm">
+                    <Package className="mr-2 h-4 w-4" />
+                    Adicionar peça
+                  </Button>
+                )}
+              />
               <Button className="w-full justify-start" variant="outline" size="sm">
                 <TrendingUp className="mr-2 h-4 w-4" />
                 Gerar relatório
               </Button>
-              <Button className="w-full justify-start" variant="outline" size="sm">
+              <Button
+                className="w-full justify-start"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (!canManage) {
+                    alertNoPermission()
+                    return
+                  }
+                  setAddUserOpen(true)
+                }}
+              >
                 <User className="mr-2 h-4 w-4" />
                 Novo Usuario
               </Button>
@@ -207,6 +269,15 @@ export default function AlertsAndActions() {
           </div>
         </div>
       </div>
+
+      <AddUserDialog
+        open={addUserOpen}
+        setOpen={setAddUserOpen}
+        form={addUserForm}
+        setForm={setAddUserForm}
+        loading={addUserLoading}
+        onConfirm={handleAddUser}
+      />
     </section>
   )
 }

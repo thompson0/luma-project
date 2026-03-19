@@ -40,7 +40,7 @@ export default function LoginForm() {
       // Aguarda a sessão estar disponível antes de navegar
       await fetch("/api/v1/auth/get-session", { credentials: "include" })
       triggerRefresh()
-      router.push("/catalogo")
+      router.push("/")
     } catch (err) {
       setError(err.message)
     } finally {
