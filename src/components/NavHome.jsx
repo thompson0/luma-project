@@ -90,18 +90,6 @@ function NavHome() {
               </Button>
             </Link>
 
-            <Link href="/visitante/videos">
-              <Button
-                variant="ghost"
-                className={`flex gap-2 items-center transition-colors ${isScrolled
-                    ? "text-foreground hover:bg-accent hover:text-foreground"
-                    : "text-foreground dark:text-white hover:bg-accent/40 dark:hover:bg-white/10"
-                  }`}
-              >
-                <PlayCircleIcon className="w-5 h-5" />
-                Vídeos
-              </Button>
-            </Link>
 
             {isLoggedIn ? (
               <Button
