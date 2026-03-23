@@ -7,6 +7,7 @@ import Link from "next/link"
 import NavHome from "@/components/NavHome"
 import { ProgressDemo } from "@/components/ProgressDemo"
 import { Button } from "@/components/ui/button"
+import { ImageZoom } from "@/components/ImageZoom"
 import {
   Carousel,
   CarouselContent,
@@ -100,18 +101,18 @@ function PecaDetalhes() {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-          {/* Galeria de fotos */}
+ 
           <div className="space-y-4">
-            {/* Imagem principal */}
+       
             <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-muted border border-border shadow-sm">
-              <img
+              <ImageZoom
                 src={fotos[selectedImage]}
                 alt={`${peca.name} - foto ${selectedImage + 1}`}
-                className="w-full h-full object-contain p-4 transition-all duration-300"
+                className="w-full h-full"
               />
             </div>
 
-            {/* Thumbnails */}
+        
             {fotos.length > 1 && (
               <div className="flex gap-3 justify-center">
                 {fotos.map((foto, index) => (
