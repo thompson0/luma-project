@@ -19,6 +19,7 @@ import { useRefresh } from "@/context/RefreshContext"
 export default function EditPecas({ id, onUpdated }) {
   const [form, setForm] = useState({
     name: "",
+    codigo: "",
     materials: "",
     preco: "",
     fotos: [],
@@ -36,6 +37,7 @@ export default function EditPecas({ id, onUpdated }) {
         const data = await res.json()
         setForm({
           name: data.name || "",
+          codigo: data.codigo || "",
           materials: data.materials || "",
           preco: data.preco || "",
           fotos: data.fotos || [],
@@ -59,6 +61,7 @@ export default function EditPecas({ id, onUpdated }) {
         {
           method: "PUT",
           body: JSON.stringify({
+            codigo: form.codigo ? Number(form.codigo) : null,
             name: form.name,
             materials: form.materials,
             preco: form.preco ? Number(form.preco) : 0,
@@ -80,6 +83,7 @@ export default function EditPecas({ id, onUpdated }) {
       triggerRefresh()
 
       setForm({
+        codigo: "",
         name: "",
         materials: "",
         preco: "",
@@ -115,6 +119,13 @@ export default function EditPecas({ id, onUpdated }) {
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             required
+          />
+
+          <Input
+            placeholder="Código"
+            type="number"
+            value={form.codigo}
+            onChange={(e) => setForm({ ...form, codigo: e.target.value })}
           />
 
           <Input

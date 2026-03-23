@@ -19,6 +19,7 @@ import MultiImageUpload from "./MultiImageUpload"
 export default function AddPecas({ onCreated, trigger, canOpen = true, onDeniedOpen }) {
   const [form, setForm] = useState({
     name: "",
+    codigo: "",
     materials: "",
     preco: "",
     fotos: [],
@@ -41,6 +42,7 @@ export default function AddPecas({ onCreated, trigger, canOpen = true, onDeniedO
           method: "POST",
           body: JSON.stringify({
             name: form.name,
+            codigo: form.codigo ? Number(form.codigo) : null,
             materials: form.materials,
             preco: form.preco ? Number(form.preco) : 0,
             fotos: fotosValidas,
@@ -62,6 +64,7 @@ export default function AddPecas({ onCreated, trigger, canOpen = true, onDeniedO
 
       setForm({
         name: "",
+        codigo: "",
         materials: "",
         preco: "",
         fotos: [],
@@ -104,8 +107,13 @@ export default function AddPecas({ onCreated, trigger, canOpen = true, onDeniedO
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
             />
- 
 
+            <Input
+              placeholder="Código"
+              type="number"
+              value={form.codigo}
+              onChange={(e) => setForm({ ...form, codigo: e.target.value })}
+            />
 
           <Input
             placeholder="Material"

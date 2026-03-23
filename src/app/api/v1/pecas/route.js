@@ -9,6 +9,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url)
 
     const nome = searchParams.get("nome")
+    const codigo = searchParams.get("codigo")
     const minPreco = searchParams.get("minPreco")
     const maxPreco = searchParams.get("maxPreco")
     const dataInicio = searchParams.get("dataInicio")
@@ -25,6 +26,10 @@ export async function GET(request) {
 
     if (nome) {
       filtro.name = { $regex: nome, $options: "i" }
+    }
+
+    if (codigo) {
+      filtro.codigo = Number(codigo)
     }
 
     if (minPreco || maxPreco) {

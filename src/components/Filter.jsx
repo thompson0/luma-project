@@ -10,6 +10,7 @@ export default function Filter({ onFilter }) {
 
   const [filters, setFilters] = useState({
     nome: "",
+    codigo: "",
     minPreco: "",
     maxPreco: "",
     dataInicio: "",
@@ -25,6 +26,7 @@ export default function Filter({ onFilter }) {
     const query = new URLSearchParams()
 
     if (filters.nome) query.append("nome", filters.nome)
+    if (filters.codigo) query.append("codigo", filters.codigo)
     if (filters.minPreco) query.append("minPreco", filters.minPreco)
     if (filters.maxPreco) query.append("maxPreco", filters.maxPreco)
     if (filters.dataInicio) query.append("dataInicio", filters.dataInicio)
@@ -36,6 +38,7 @@ export default function Filter({ onFilter }) {
 
   function handleClearFilter() {
     setFilters({
+      codigo: "",
       nome: "",
       minPreco: "",
       maxPreco: "",
@@ -71,6 +74,17 @@ export default function Filter({ onFilter }) {
       {isOpen && (
         <div className="absolute top-full left-0 mt-2 bg-card border border-border rounded-lg shadow-lg p-4 z-50 w-80">
           <div className="space-y-4">
+
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Código</label>
+              <Input
+                name="codigo"
+                placeholder="Digite o código"
+                type="number"
+                value={filters.codigo}
+                onChange={handleChange}
+              />
+            </div>
 
             <div className="space-y-1">
               <label className="text-sm font-medium">Preço</label>

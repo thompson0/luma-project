@@ -17,7 +17,10 @@ const PecasSchema = new Schema({
     type: Number, 
     min: 0
   },
-
+  codigo:{
+    type: Number,
+  
+  },
   fotos: {
     type: [String],
     default: [],
